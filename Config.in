@@ -1,0 +1,4 @@
+config BR2_PACKAGE_PATHFINDER
+	bool "Pathfinder"
+	help
+		Include pathfinder in build
