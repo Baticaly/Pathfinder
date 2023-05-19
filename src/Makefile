@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -std=c++17 -Wall
-LDFLAGS = -lpthread
+LDFLAGS = -pthread -lstdc++
 
 EXECUTABLE = pathfinder
 SOURCES = $(wildcard *.cpp)
