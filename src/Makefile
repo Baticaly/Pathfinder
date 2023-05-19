@@ -1,9 +1,16 @@
-CC = gcc
+CC = g++
+CFLAGS = -std=c++17 -Wall
+LDFLAGS = -lpthread
 
-.PHONY: clean
+EXECUTABLE = pathfinder
+SOURCES = $(wildcard *.cpp)
 
-pathfinder: pathfinder.cpp
-	$(CC) -o '$@' '$<'
+all: $(EXECUTABLE)
+
+$(EXECUTABLE): $(SOURCES)
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 clean:
-	rm pathfinder
+	rm -f $(EXECUTABLE)
+
+.PHONY: all clean

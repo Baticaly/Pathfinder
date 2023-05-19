@@ -19,7 +19,7 @@ Params: ctsrts                  Enable CTS/RTS on GPIOs 10-11 (default off)
 void uartProxy()
 {
     // Open the serial port (ttyAMA1)
-    int serialPort = open("/dev/ttyAMA1", O_RDWR | O_NOCTTY | O_NDELAY);
+    int serialPort = open("/dev/ttyAMA1", O_RDWR | O_NOCTTY);
     if (serialPort == -1)
     {
         std::cerr << "Failed to open serial port." << std::endl;
@@ -40,7 +40,7 @@ void uartProxy()
     tcsetattr(serialPort, TCSANOW, &options);
 
     // Placeholder data to send
-    std::string data = "Hello Pico!";
+    std::string data = "Hello Pico";
 
     // Send data continuously
     while (true)
