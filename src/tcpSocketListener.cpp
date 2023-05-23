@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <mutex>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include "tcpSocketListener.h"
 
 void error(const char *msg)
 {
@@ -12,7 +14,7 @@ void error(const char *msg)
     exit(1);
 }
 
-int tcpSocketListener()
+void tcpSocketListener(std::vector<int> &motorData, std::mutex &motorMutex)
 {
     const int portno = 8080;
     int sockfd, newsockfd;
@@ -48,13 +50,22 @@ int tcpSocketListener()
         if (n < 0)
             error("ERROR reading from socket");
 
-        printf("got message: %s\n", buffer);
-        // n = write(newsockfd, "confirmed", 18);
+        motorMutex.lock(); // Lock the mutex before modifying motorData
+
+        motorData.resize(8); // Adjust the size of the motorData vector
+
+        sscanf(buffer, "%d,%d,%d,%d,%d,%d,%d,%d",
+               &motorData[0], &motorData[1], &motorData[2], &motorData[3],
+               &motorData[4], &motorData[5], &motorData[6], &motorData[7]);
+
+        motorMutex.unlock(); // Unlock the mutex after modifying motorData
+
         n = write(newsockfd, buffer, 255);
         if (n < 0)
             error("ERROR writing to socket");
+
+        close(newsockfd);
     }
 
-    close(newsockfd);
     close(sockfd);
 }

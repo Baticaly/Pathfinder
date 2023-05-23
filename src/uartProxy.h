@@ -1,6 +1,9 @@
 #ifndef UARTPROXY_H
 #define UARTPROXY_H
 
-void uartProxy();
+#include <vector>
+#include <mutex>
 
-#endif
+void uartProxy(const std::vector<int> &motorData, std::mutex &motorMutex);
+
+#endif // UARTPROXY_H

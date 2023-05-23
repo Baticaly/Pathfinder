@@ -1,6 +1,9 @@
 #ifndef TCPSOCKETLISTENER_H
 #define TCPSOCKETLISTENER_H
 
-void tcpSocketListener();
+#include <vector>
+#include <mutex>
 
-#endif
+void tcpSocketListener(std::vector<int> &motorData, std::mutex &motorMutex);
+
+#endif // TCPSOCKETLISTENER_H

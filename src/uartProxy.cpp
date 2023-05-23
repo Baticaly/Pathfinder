@@ -1,22 +1,13 @@
-#include <iostream>
+#include <iostream> // Added for debugging
+#include <vector>
+#include <mutex>
 #include <fcntl.h>
 #include <termios.h>
 #include <unistd.h>
+#include <chrono>
 #include "uartProxy.h"
 
-/*
-Name:   uart2
-Info:   Enable uart 2 on GPIOs 0-3
-Load:   dtoverlay=uart2,<param>
-Params: ctsrts                  Enable CTS/RTS on GPIOs 2-3 (default off)
-
-Name:   uart4
-Info:   Enable uart 4 on GPIOs 8-11
-Load:   dtoverlay=uart4,<param>
-Params: ctsrts                  Enable CTS/RTS on GPIOs 10-11 (default off)
-*/
-
-void uartProxy()
+void uartProxy(const std::vector<int> &motorData, std::mutex &motorMutex)
 {
     // Open the serial port (ttyAMA1)
     int serialPort = open("/dev/ttyAMA1", O_RDWR | O_NOCTTY);
@@ -39,19 +30,33 @@ void uartProxy()
     options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
     tcsetattr(serialPort, TCSANOW, &options);
 
-    // Placeholder data to send
-    std::string data = "Hello Pico";
-
-    // Send data continuously
     while (true)
     {
-        ssize_t bytesWritten = write(serialPort, data.c_str(), data.length());
+        std::string jsonMsg;
+
+        motorMutex.lock(); // Lock the mutex before accessing motorData
+
+        // Prepare JSON message with motor values
+        jsonMsg = "{";
+        for (size_t i = 0; i < motorData.size(); ++i)
+        {
+            jsonMsg += "\"motor" + std::to_string(i + 1) + "\":" + std::to_string(motorData[i]);
+            if (i != motorData.size() - 1)
+                jsonMsg += ",";
+        }
+        jsonMsg += "}";
+
+        motorMutex.unlock(); // Unlock the mutex after accessing motorData
+
+        // Print motorData for debugging
+        std::cout << "Motor Data: " << jsonMsg << std::endl;
+
+        // Send JSON message over serial
+        ssize_t bytesWritten = write(serialPort, jsonMsg.c_str(), jsonMsg.length());
         if (bytesWritten == -1)
         {
             std::cerr << "Failed to write data to serial port." << std::endl;
-            break;
         }
-        usleep(1000000); // Sleep for 1 second before sending the next batch
     }
 
     // Close the serial port

@@ -1,37 +1,36 @@
 #include <thread>
+#include <vector>
 #include <iostream>
 #include <mutex>
 #include "tcpSocketListener.h"
 #include "uartProxy.h"
 #include "sensorInput.h"
 
-// Global variable to store UART data
-std::string uartData;
-std::mutex uartMutex;
+using namespace std;
 
-// Function for the main program thread
-void pathfinder()
-{
-    while (true)
-    {
-        std::cout << "UART Data: " << uartData << std::endl;
-    }
-}
+// Global variable to store UART data
+string uartData;
+mutex uartMutex;
+
+// Shared variable to store motor values
+vector<int> motorData;
+mutex motorMutex; // Mutex for protecting motorData
+
+// Global variable to store the received JSON data
+std::string pathUpdate;
+std::mutex pathUpdateMutex;
 
 int main()
 {
-    // Create threads for both programs
-    std::thread t1(tcpSocketListener);
-    std::thread t2(uartProxy);
-    std::thread t3(sensorInput);
+    // Start the UART proxy in a separate thread
+    thread uartThread(uartProxy, ref(motorData), ref(motorMutex));
 
-    // Call the main program function
-    pathfinder();
+    // Start the TCP socket listener in a separate thread
+    thread tcpThread(tcpSocketListener, ref(motorData), ref(motorMutex));
 
-    // Wait for both threads to finish
-    t1.join();
-    t2.join();
-    t3.join();
+    // Wait for the threads to finish (optional)
+    uartThread.join();
+    tcpThread.join();
 
     return 0;
 }
