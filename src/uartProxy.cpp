@@ -40,11 +40,11 @@ void uartProxy(const std::vector<int> &motorData, std::mutex &motorMutex)
         jsonMsg = "{";
         for (size_t i = 0; i < motorData.size(); ++i)
         {
-            jsonMsg += "\"motor" + std::to_string(i + 1) + "\":" + std::to_string(motorData[i]);
+            jsonMsg += std::to_string(motorData[i]);
             if (i != motorData.size() - 1)
                 jsonMsg += ",";
         }
-        jsonMsg += "}";
+        jsonMsg += "}\n";
 
         motorMutex.unlock(); // Unlock the mutex after accessing motorData
 
