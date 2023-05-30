@@ -1,12 +1,11 @@
-#include <iostream> // Added for debugging
+#include "i2cProxy.h"
+#include <iostream>
 #include <vector>
 #include <mutex>
 #include <fcntl.h>
-#include <sys/ioctl.h> // Added for ioctl
+#include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
 #include <unistd.h>
-#include <chrono>
-#include "i2cProxy.h"
 
 void i2cProxy(const std::vector<int> &motorData, std::mutex &motorMutex)
 {
@@ -23,6 +22,7 @@ void i2cProxy(const std::vector<int> &motorData, std::mutex &motorMutex)
     if (ioctl(i2cBus, I2C_SLAVE, i2cServerAddress) < 0)
     {
         std::cerr << "Failed to acquire bus access and/or talk to I2C server." << std::endl;
+        close(i2cBus); // Close the I2C bus before returning
         return;
     }
 
@@ -30,23 +30,15 @@ void i2cProxy(const std::vector<int> &motorData, std::mutex &motorMutex)
     {
         std::vector<uint8_t> data;
 
-        motorMutex.lock(); // Lock the mutex before accessing motorData
-
-        // Prepare data with motor values
-        for (int value : motorData)
         {
-            data.push_back(static_cast<uint8_t>(value));
-        }
+            std::lock_guard<std::mutex> lock(motorMutex); // Use lock_guard for automatic unlocking
 
-        motorMutex.unlock(); // Unlock the mutex after accessing motorData
-
-        // Print motorData for debugging
-        std::cout << "Motor Data: ";
-        for (uint8_t value : data)
-        {
-            std::cout << static_cast<int>(value) << " ";
+            // Prepare data with motor values
+            for (int value : motorData)
+            {
+                data.push_back(static_cast<uint8_t>(value));
+            }
         }
-        std::cout << std::endl;
 
         // Send motor data to the I2C server (Pico)
         ssize_t bytesWritten = write(i2cBus, data.data(), data.size());
@@ -67,6 +59,11 @@ void i2cProxy(const std::vector<int> &motorData, std::mutex &motorMutex)
             }
             std::cout << std::endl;
         }
+
+        // if (exitCondition)
+        // {
+        //     break;
+        // }
     }
 
     // Close the I2C bus
