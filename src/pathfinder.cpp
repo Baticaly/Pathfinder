@@ -3,7 +3,7 @@
 #include <iostream>
 #include <mutex>
 #include "tcpSocketListener.h"
-#include "uartProxy.h"
+#include "i2cProxy.h"
 #include "sensorInput.h"
 
 using namespace std;
@@ -23,7 +23,7 @@ std::mutex pathUpdateMutex;
 int main()
 {
     // Start the UART proxy in a separate thread
-    thread uartThread(uartProxy, ref(motorData), ref(motorMutex));
+    thread uartThread(i2cProxy, ref(motorData), ref(motorMutex));
 
     // Start the TCP socket listener in a separate thread
     thread tcpThread(tcpSocketListener, ref(motorData), ref(motorMutex));
