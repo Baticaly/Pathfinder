@@ -48,7 +48,12 @@ void tcpSocketListener(std::vector<int> &motorData, std::mutex &motorMutex)
         bzero(buffer, 256);
         n = read(newsockfd, buffer, 255);
         if (n < 0)
+        {
             error("ERROR reading from socket");
+            motorMutex.lock();
+            motorData.clear();
+            motorMutex.unlock();
+        }
 
         motorMutex.lock(); // Lock the mutex before modifying motorData
 
@@ -62,7 +67,12 @@ void tcpSocketListener(std::vector<int> &motorData, std::mutex &motorMutex)
 
         n = write(newsockfd, buffer, 255);
         if (n < 0)
+        {
             error("ERROR writing to socket");
+            motorMutex.lock();
+            motorData.clear();
+            motorMutex.unlock();
+        }
 
         close(newsockfd);
     }

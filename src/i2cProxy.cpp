@@ -26,6 +26,9 @@ void i2cProxy(const std::vector<int> &motorData, std::mutex &motorMutex)
         return;
     }
 
+    // Define default motor values
+    std::vector<uint8_t> defaultMotorData(8, 0); // 8 motor values, all set to 0
+
     while (true)
     {
         std::vector<uint8_t> data;
@@ -34,9 +37,12 @@ void i2cProxy(const std::vector<int> &motorData, std::mutex &motorMutex)
             std::lock_guard<std::mutex> lock(motorMutex); // Use lock_guard for automatic unlocking
 
             // Prepare data with motor values
-            for (int value : motorData)
-            {
-                data.push_back(static_cast<uint8_t>(value));
+            if (motorData.empty()) {
+                data = defaultMotorData;
+            } else {
+                for (int value : motorData) {
+                    data.push_back(static_cast<uint8_t>(value));
+                }
             }
         }
 
@@ -48,21 +54,16 @@ void i2cProxy(const std::vector<int> &motorData, std::mutex &motorMutex)
         }
 
         // Receive response from the I2C server (Pico) (optional)
-        uint8_t response[256];
-        ssize_t bytesRead = read(i2cBus, response, sizeof(response));
-        if (bytesRead > 0)
-        {
-            std::cout << "Received response: ";
-            for (ssize_t i = 0; i < bytesRead; ++i)
-            {
-                std::cout << static_cast<int>(response[i]) << " ";
-            }
-            std::cout << std::endl;
-        }
-
-        // if (exitCondition)
+        // uint8_t response[256];
+        // ssize_t bytesRead = read(i2cBus, response, sizeof(response));
+        // if (bytesRead > 0)
         // {
-        //     break;
+        //     std::cout << "Received response: ";
+        //     for (ssize_t i = 0; i < bytesRead; ++i)
+        //     {
+        //         std::cout << static_cast<int>(response[i]) << " ";
+        //     }
+        //     std::cout << std::endl;
         // }
     }
 
