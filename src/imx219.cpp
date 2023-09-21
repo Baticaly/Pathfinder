@@ -6,20 +6,25 @@
 
 cv::Mat captureImage()
 {
-    cv::VideoCapture cap(0); // Open the default camera
-
-    if(!cap.isOpened()) { // Check if we succeeded
-        std::cerr << "Error opening camera" << std::endl;
-        throw std::runtime_error("Failed to open camera");
-    }
-
     cv::Mat frame;
-    cap >> frame; // Get a new frame from camera
+    try {
+        cv::VideoCapture cap(0); // Open the default camera
 
-    if (frame.empty())
-    {
-        std::cerr << "ERROR capturing image" << std::endl;
-        throw std::runtime_error("Failed to capture image");
+        if(!cap.isOpened()) { // Check if we succeeded
+            std::cerr << "Error opening camera" << std::endl;
+            throw std::runtime_error("Failed to open camera");
+        }
+
+        cap >> frame; // Get a new frame from camera
+
+        if (frame.empty())
+        {
+            std::cerr << "ERROR capturing image" << std::endl;
+            throw std::runtime_error("Failed to capture image");
+        }
+    } catch (const std::runtime_error& e) {
+        std::cerr << "Exception caught: " << e.what() << '\n';
+        // Handle the error or recover here
     }
 
     return frame;

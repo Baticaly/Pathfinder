@@ -26,25 +26,6 @@ std::mutex pathUpdateMutex;
 
 int main()
 {
-    // Camera test
-    try {
-        cv::Mat testImage = captureImage();
-
-        // Get the current time
-        auto now = std::chrono::system_clock::now();
-        auto now_c = std::chrono::system_clock::to_time_t(now);
-
-        // Generate a filename with the current time
-        std::ostringstream filename;
-        filename << "/media/test_" << now_c << ".jpg";
-
-        cv::imwrite(filename.str(), testImage);
-        std::cout << "Camera test passed" << std::endl;
-    } catch (const std::exception& e) {
-        std::cerr << "Camera test failed: " << e.what() << std::endl;
-        return 1;
-    }
-
     // Start the UART proxy in a separate thread
     thread proxyThread(i2cProxy, ref(motorData), ref(motorMutex));
 

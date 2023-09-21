@@ -19,6 +19,7 @@ void transmitImage(int serverPort)
     int opt = 1;
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) {
         std::cerr << "ERROR setting socket options" << std::endl;
+        close(sockfd);
         return;
     }
 
@@ -30,6 +31,7 @@ void transmitImage(int serverPort)
     if (bind(sockfd, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0)
     {
         std::cerr << "ERROR binding to socket" << std::endl;
+        close(sockfd);
         return;
     }
 
@@ -42,6 +44,7 @@ void transmitImage(int serverPort)
     if (newsockfd < 0)
     {
         std::cerr << "ERROR accepting connection" << std::endl;
+        close(sockfd);
         return;
     }
 
