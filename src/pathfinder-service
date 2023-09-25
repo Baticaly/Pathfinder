@@ -17,10 +17,11 @@ case "$1" in
         # Start command
         modprobe i2c-bcm2835
         modprobe i2c-dev
+        modprobe uvcvideo
         /usr/bin/pathfinder
 
         # Start the camera stream
-        raspivid -o - -t 0 -hf -w 640 -h 360 -fps 25 | cvlc -vvv stream:///dev/stdin --sout '#standard{access=http,mux=ts,dst=:8160}' :demux=h264 &
+        ffmpeg -f v4l2 -input_format mjpeg -i /dev/video0 -c:v copy -f matroska udp://192.168.1.101:5000 &
         ;;
     stop)
         # Stop command
