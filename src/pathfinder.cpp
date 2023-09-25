@@ -2,14 +2,9 @@
 #include <vector>
 #include <iostream>
 #include <mutex>
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgcodecs/imgcodecs.hpp>
 #include "tcpSocketListener.h"
 #include "i2cProxy.h"
 #include "sensorInput.h"
-#include "imx219.h"
-#include "liveVideo.h"
-
 using namespace std;
 
 // Global variable to store UART data
@@ -32,14 +27,9 @@ int main()
     // Start the TCP socket listener in a separate thread
     thread tcpThread(tcpSocketListener, ref(motorData), ref(motorMutex));
 
-    // Start the image transmission in a separate thread
-    // Replace "serverIP" and serverPort with your server's IP address and port number
-    thread imageThread(transmitImage, 8081);
-
     // Wait for the threads to finish (optional)
     proxyThread.join();
     tcpThread.join();
-    imageThread.join();
 
     return 0;
 }
