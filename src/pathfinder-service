@@ -18,10 +18,10 @@ case "$1" in
         modprobe i2c-bcm2835
         modprobe i2c-dev
         modprobe uvcvideo
-        /usr/bin/pathfinder
+        /usr/bin/pathfinder &  # Run pathfinder in the background
 
-        # Start the camera stream
-        ffmpeg -f v4l2 -input_format mjpeg -i /dev/video0 -c:v copy -f matroska udp://192.168.1.101:5000 &
+        # Start the camera stream with specified resolution
+        ffmpeg -f v4l2 -input_format mjpeg -video_size 1280x720 -i /dev/video0 -c:v copy -f matroska udp://192.168.1.101:5000 < /dev/null > /dev/null 2>&1 &
         ;;
     stop)
         # Stop command
